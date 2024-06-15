@@ -127,9 +127,9 @@ int bgfx_draw_letter(char letter, int x, int y)
          break;
    }
 
-   for (int i = 1; i <= BGFX_HELVETICA_12_WIDTH; i++)
+   for (int j = 1; j <= BGFX_HELVETICA_12_HEIGHT; j++)
    {
-      for (int j = 1; i <= BGFX_HELVETICA_12_HEIGHT; i++)
+      for (int i = 1; i <= BGFX_HELVETICA_12_WIDTH; i++)
       {
          if (_bgfx_letter_point(letter_map, i, j))
          {
