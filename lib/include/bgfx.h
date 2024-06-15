@@ -39,19 +39,37 @@ int bgfx_add_point(int x, int y);
 // int start_x: starting x-coordinate of user map.
 // int finish_x: finishing x-coordinate of user map.
 // int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
 int bgfx_draw_line_x(int start_x, int finish_x, int y);
 
 // Draw a line along the y-axis from (x,start_y) to (x,finish_y)
 // int x: x-coordinate of user map.
 // int start_y: starting y-coordinate of user map.
 // int finish_y: finishing y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
 int bgfx_draw_line_y(int x, int start_y, int finish_y);
 
 // Draw a letter with the top left starting at x,y
 // char letter: character to draw
 // int x: x-coordinate of user map.
 // int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
 int bgfx_draw_letter(char letter, int x, int y);
+
+// Draw a string horizontally with the top left starting at x,y.
+// char * string: string to draw
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_string(char * string, int x, int y);
+
+// Draw a string horizontally with padding, with the top left starting at x,y.
+// char * string: string to draw
+// int pad: number of pixels to pad between each letter
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_string_padding(char * string, int pad, int x, int y);
 
 /* Private Functions */
 // Perform error checking on a set of coordinates to see if they're valid

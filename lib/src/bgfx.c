@@ -62,6 +62,7 @@ int bgfx_add_point(int x, int y)
 // int start_x: starting x-coordinate of user map.
 // int finish_x: finishing x-coordinate of user map.
 // int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
 int bgfx_draw_line_x(int start_x, int finish_x, int y)
 {
    if (!(_bgfx_valid(start_x, y) && _bgfx_valid(finish_x, y)))
@@ -84,6 +85,7 @@ int bgfx_draw_line_x(int start_x, int finish_x, int y)
 // int x: x-coordinate of user map.
 // int start_y: starting y-coordinate of user map.
 // int finish_y: finishing y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
 int bgfx_draw_line_y(int x, int start_y, int finish_y)
 {
    if (!(_bgfx_valid(x, start_y) && _bgfx_valid(x, finish_y)))
@@ -106,6 +108,7 @@ int bgfx_draw_line_y(int x, int start_y, int finish_y)
 // char letter: character to draw
 // int x: x-coordinate of user map.
 // int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
 int bgfx_draw_letter(char letter, int x, int y)
 {
    if (!_bgfx_valid(x, y))
@@ -136,6 +139,38 @@ int bgfx_draw_letter(char letter, int x, int y)
    }
 
    return 0;
+}
+
+// Draw a string horizontally with the top left starting at x,y.
+// char * string: string to draw
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_string(char * string, int x, int y)
+{
+   return bgfx_draw_string_padding(string, 1, x, y);
+}
+
+// Draw a string horizontally with padding, with the top left starting at x,y.
+// char * string: string to draw
+// int pad: number of pixels to pad between each letter
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_string_padding(char * string, int pad, int x, int y)
+{
+   if (string == NULL)
+   {
+      return -1;
+   }
+
+   int next_x = x;
+
+   for (int i = 0; string[i] != '\0'; i++)
+   {
+      bgfx_draw_letter(string[i], next_x, y);
+      next_x += _bgfx_global_props.font->px_width + pad;   // Padding + 1
+   }
 }
 
 /* Private Functions */
