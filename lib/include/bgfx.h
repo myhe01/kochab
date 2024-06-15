@@ -56,6 +56,14 @@ int bgfx_draw_line_y(int x, int start_y, int finish_y);
 // Returns 0 on success, -1 on failure.
 int bgfx_draw_letter(char letter, int x, int y);
 
+// Draw a letter of modified size with the top left starting at x,y
+// char letter: character to draw
+// int size_modifier: Size modifier for the character
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_letter_modified(char letter, int size_modifier, int x, int y);
+
 // Draw a string horizontally with the top left starting at x,y.
 // char * string: string to draw
 // int x: x-coordinate of user map.
@@ -88,5 +96,12 @@ void _bgfx_add_point(int x, int y);
 // int y: y-coordinate of letter map
 // Returns true if pixel present, false if not
 bool _bgfx_letter_point(uint8_t const * letter, int x, int y);
+
+// Draw a letter with the top left starting at x,y
+// char letter: character to draw
+// int size_modifier: Size modifier for the character
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+void _bgfx_draw_letter(char letter, int size_modifier, int x, int y);
 
 #endif // BGFX_H

@@ -121,21 +121,31 @@ int bgfx_draw_letter(char letter, int x, int y)
       return -1;
    }
 
-   int letter_width = _bgfx_global_props.font->px_width;
-   int letter_height = _bgfx_global_props.font->px_height;
-   uint8_t const * letter_map = _bgfx_global_props.font->map;
-   letter_map += _bgfx_get_index_of_char(_bgfx_global_props.font, letter);
+   _bgfx_draw_letter(letter, 1, x, y);
 
-   for (int j = 1; j <= letter_height; j++)
+   return 0;
+}
+
+// Draw a letter of modified size with the top left starting at x,y
+// char letter: character to draw
+// int size_modifier: Size modifier for the character
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_letter_modified(char letter, int size_modifier, int x, int y)
+{
+   if (!_bgfx_valid(x, y))
    {
-      for (int i = 1; i <= letter_width; i++)
-      {
-         if (_bgfx_letter_point(letter_map, i, j))
-         {
-            _bgfx_add_point(i + x, j + y);
-         }
-      }
+      return -1;
    }
+
+   if (!_bgfx_valid((x + _bgfx_global_props.font->px_width) * size_modifier,
+      (y + _bgfx_global_props.font->px_height) * size_modifier))
+   {
+      return -1;
+   }
+
+   _bgfx_draw_letter(letter, size_modifier, x, y);
 
    return 0;
 }
@@ -170,6 +180,8 @@ int bgfx_draw_string_padding(char * string, int pad, int x, int y)
       bgfx_draw_letter(string[i], next_x, y);
       next_x += _bgfx_global_props.font->px_width + pad;   // Padding + 1
    }
+
+   return 0;
 }
 
 /* Private Functions */
@@ -229,4 +241,32 @@ bool _bgfx_letter_point(uint8_t const * letter, int x, int y)
    offset = bit_pos % 8;
 
    return (letter[index] & (0x80 >> offset));
+}
+
+// Draw a letter with the top left starting at x,y
+// char letter: character to draw
+// int size_modifier: Size modifier for the character (multiples of 2)
+// int x: x-coordinate of user map.
+// int y: y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+void _bgfx_draw_letter(char letter, int size_modifier, int x, int y)
+{
+   int letter_width = _bgfx_global_props.font->px_width;
+   int letter_height = _bgfx_global_props.font->px_height;
+   uint8_t const * letter_map = _bgfx_global_props.font->map;
+   letter_map += _bgfx_get_index_of_char(_bgfx_global_props.font, letter);
+
+   for (int j = 1; j <= (letter_height * size_modifier); j++)
+   {
+      for (int i = 1; i <= (letter_width * size_modifier); i++)
+      {
+         if (_bgfx_letter_point(letter_map, i / size_modifier, j / size_modifier))
+         {
+            for (int k = 0; k < size_modifier; k++)
+            {
+               _bgfx_add_point(i + x + k, j + y + k);
+            }
+         }
+      }
+   }
 }
