@@ -2,7 +2,9 @@
 #define BGFX_H
 
 #include <stdbool.h>
+#include "bgfx_font.h"
 
+/* Data Types */
 typedef struct bgfx_properties
 {
    int px_width;             // Screen pixel width (1-based)
@@ -13,9 +15,13 @@ typedef struct bgfx_properties
 typedef struct bgfx_global_properties
 {
    bgfx_properties user;      // User-set properties
+   bgfx_font const * font;    // User-set font
    bool initialized;          // Global properties initialized?
    int bytes_per_row;         // Bytes per row in props.map
 } bgfx_global_properties;
+
+/* Global Variables */
+extern bgfx_global_properties _bgfx_global_props;     // Global properties
 
 /* Public Functions */
 // Set up Brendan's Graphics Library

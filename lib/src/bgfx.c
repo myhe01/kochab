@@ -5,10 +5,13 @@
 #include "../include/bgfx.h"
 #include "../include/font/bgfx_helvetica_12.h"
 
-bgfx_global_properties _bgfx_global_props = 
+/* Global Variables */
+// Global properties
+bgfx_global_properties _bgfx_global_props =
 {
    .initialized = 0,
    .bytes_per_row = 0,
+   .font = &BGFX_ATARI_8,
    .user =
    {
       .px_width = 0,
@@ -17,6 +20,7 @@ bgfx_global_properties _bgfx_global_props =
    }
 };
 
+/* Public Functions */
 // Set up Brendan's Graphics Library
 // bgfx_properties * bgfx_properties: Properties to initialize with.
 // Returns 0 on success, -1 on failure.
