@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/bgfx.h"
-#include "../include/font/bgfx_helvetica_12.h"
 
 /* Global Variables */
 // Global properties
