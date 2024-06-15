@@ -53,5 +53,12 @@ int bgfx_set_font(bgfx_font const * font)
 // Returns the index.
 int _bgfx_get_index_of_char(bgfx_font const * font, char character)
 {
-   return 0;
+   // If invalid char passed, return the index of ' '
+   if (character < ' ' || character > '~')
+   {
+      return 0;
+   }
+
+   // Get the character's offset, then multiply by height and bytes per row
+   return ((character - ' ') * font->bytes_per_row * font->px_height);
 }
