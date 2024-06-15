@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../include/bgfx.h"
 
 /* Global Variables */
@@ -101,6 +102,33 @@ int bgfx_draw_line_y(int x, int start_y, int finish_y)
       _bgfx_add_point(x, i);
    }
 
+   return 0;
+}
+
+// Draw an empty box from start (start_x,start_y) to (finish_x,finish_y)
+// int start_x: starting x-coordinate of user map.
+// int finish_x: finishing x-coordinate of user map.
+// int start_y: starting y-coordinate of user map.
+// int finish_y: finishing y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_box(int start_x, int finish_x, int start_y, int finish_y)
+{
+   int rv = 0;
+
+   rv += bgfx_draw_line_x(start_x, finish_x, start_y);
+   rv += bgfx_draw_line_x(start_x, finish_x, finish_y);
+   rv += bgfx_draw_line_y(start_x, start_y, finish_y);
+   rv += bgfx_draw_line_y(finish_x, start_y, finish_y);
+
+   return ((rv < 0) ? -1 : 0);
+}
+
+// Clear the display.
+// Returns 0 on success, -1 on failure.
+int bgfx_erase_all()
+{
+   memset(_bgfx_global_props.user.map, 0,
+      (_bgfx_global_props.user.px_height * _bgfx_global_props.user.px_width));
    return 0;
 }
 

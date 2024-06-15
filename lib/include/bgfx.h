@@ -36,7 +36,7 @@ int bgfx_setup(bgfx_properties * bgfx_properties);
 // Returns 0 on success, -1 on failure.
 int bgfx_add_point(int x, int y);
 
-// Draw a line along the x-axis from (start_x,y) to (start_x,y)
+// Draw a line along the x-axis from (start_x,y) to (finish_x,y)
 // int start_x: starting x-coordinate of user map.
 // int finish_x: finishing x-coordinate of user map.
 // int y: y-coordinate of user map.
@@ -49,6 +49,18 @@ int bgfx_draw_line_x(int start_x, int finish_x, int y);
 // int finish_y: finishing y-coordinate of user map.
 // Returns 0 on success, -1 on failure.
 int bgfx_draw_line_y(int x, int start_y, int finish_y);
+
+// Draw an empty box from start (start_x,start_y) to (finish_x,finish_y)
+// int start_x: starting x-coordinate of user map.
+// int finish_x: finishing x-coordinate of user map.
+// int start_y: starting y-coordinate of user map.
+// int finish_y: finishing y-coordinate of user map.
+// Returns 0 on success, -1 on failure.
+int bgfx_draw_box(int start_x, int finish_x, int start_y, int finish_y);
+
+// Clear the display.
+// Returns 0 on success, -1 on failure.
+int bgfx_erase_all();
 
 /* Private Functions */
 // Perform error checking on a set of coordinates to see if they're valid
