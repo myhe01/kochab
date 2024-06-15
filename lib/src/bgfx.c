@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/bgfx.h"
-#include "../include/font/bgfx_font_8_12.h"
+#include "../include/font/bgfx_helvetica_12.h"
 
 bgfx_global_properties _bgfx_global_props = 
 {
@@ -105,7 +105,7 @@ int bgfx_draw_line_y(int x, int start_y, int finish_y)
 int bgfx_draw_letter(char letter, int x, int y)
 {
    if (!(_bgfx_valid(x, y) &&
-         _bgfx_valid(x + BGFX_FONT_8_12_WIDTH, y + BGFX_FONT_8_12_HEIGHT)))
+         _bgfx_valid(x + BGFX_HELVETICA_12_WIDTH, y + BGFX_HELVETICA_12_HEIGHT)))
    {
       return -1;
    }
@@ -113,14 +113,23 @@ int bgfx_draw_letter(char letter, int x, int y)
    uint8_t * letter_map = NULL;
    switch(letter)
    {
+      case 'a':
+         letter_map = bgfx_letter_a;
+         break;
+      case 'b':
+         letter_map = bgfx_letter_b;
+         break;
+      case 'c':
+         letter_map = bgfx_letter_c;
+         break;
       default:
-         letter_map = letter_a;
+         letter_map = bgfx_letter_space;
          break;
    }
 
-   for (int i = 1; i <= BGFX_FONT_8_12_WIDTH; i++)
+   for (int i = 1; i <= BGFX_HELVETICA_12_WIDTH; i++)
    {
-      for (int j = 1; i <= BGFX_FONT_8_12_HEIGHT; i++)
+      for (int j = 1; i <= BGFX_HELVETICA_12_HEIGHT; i++)
       {
          if (_bgfx_letter_point(letter_map, i, j))
          {
