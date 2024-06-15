@@ -69,6 +69,6 @@ void _bgfx_add_point(int x, int y);
 // int x: x-coordinate of letter map
 // int y: y-coordinate of letter map
 // Returns true if pixel present, false if not
-bool _bgfx_letter_point(uint8_t * letter, int x, int y);
+bool _bgfx_letter_point(uint8_t const * letter, int x, int y);
 
 #endif // BGFX_H

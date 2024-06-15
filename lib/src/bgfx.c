@@ -108,32 +108,25 @@ int bgfx_draw_line_y(int x, int start_y, int finish_y)
 // int y: y-coordinate of user map.
 int bgfx_draw_letter(char letter, int x, int y)
 {
-   if (!(_bgfx_valid(x, y) &&
-         _bgfx_valid(x + BGFX_HELVETICA_12_WIDTH, y + BGFX_HELVETICA_12_HEIGHT)))
+   if (!_bgfx_valid(x, y))
    {
       return -1;
    }
 
-   uint8_t * letter_map = NULL;
-   switch(letter)
+   if (!_bgfx_valid(x + _bgfx_global_props.font->px_width,
+      y + _bgfx_global_props.font->px_height))
    {
-      case 'a':
-         letter_map = bgfx_letter_a;
-         break;
-      case 'b':
-         letter_map = bgfx_letter_b;
-         break;
-      case 'c':
-         letter_map = bgfx_letter_c;
-         break;
-      default:
-         letter_map = bgfx_letter_space;
-         break;
+      return -1;
    }
 
-   for (int j = 1; j <= BGFX_HELVETICA_12_HEIGHT; j++)
+   int letter_width = _bgfx_global_props.font->px_width;
+   int letter_height = _bgfx_global_props.font->px_height;
+   uint8_t const * letter_map = _bgfx_global_props.font->map;
+   letter_map += _bgfx_get_index_of_char(_bgfx_global_props.font, letter);
+
+   for (int j = 1; j <= letter_height; j++)
    {
-      for (int i = 1; i <= BGFX_HELVETICA_12_WIDTH; i++)
+      for (int i = 1; i <= letter_width; i++)
       {
          if (_bgfx_letter_point(letter_map, i, j))
          {
@@ -191,7 +184,7 @@ void _bgfx_add_point(int x, int y)
 // int x: x-coordinate of letter map.
 // int y: y-coordinate of letter map.
 // Returns true if pixel present, false if not.
-bool _bgfx_letter_point(uint8_t * letter, int x, int y)
+bool _bgfx_letter_point(uint8_t const * letter, int x, int y)
 {
    int offset = 0, index = 0;
    int bit_pos = bit_pos = (y - 1) * 8 + (x - 1);
