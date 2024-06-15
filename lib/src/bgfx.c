@@ -215,13 +215,15 @@ void _bgfx_add_point(int x, int y)
 }
 
 // Check if there is a pixel present at (x,y) for a specific letter's map.
+// uint8_t const * letter: letter map to check
 // int x: x-coordinate of letter map.
 // int y: y-coordinate of letter map.
 // Returns true if pixel present, false if not.
 bool _bgfx_letter_point(uint8_t const * letter, int x, int y)
 {
    int offset = 0, index = 0;
-   int bit_pos = bit_pos = (y - 1) * 8 + (x - 1);
+   int bit_pos = bit_pos = (y - 1) * _bgfx_global_props.font->bytes_per_row * 8
+      + (x - 1);
 
    index = bit_pos / 8;
    offset = bit_pos % 8;
