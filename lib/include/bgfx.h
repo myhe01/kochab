@@ -56,7 +56,7 @@ int bgfx_draw_line_y(int x, int start_y, int finish_y);
 // Returns 0 on success, -1 on failure.
 int bgfx_draw_letter(char letter, int x, int y);
 
-// Draw a letter of modified size with the top left starting at x,y
+// Draw a letter of larger size with the top left starting at x,y
 // char letter: character to draw
 // int size_modifier: Size modifier for the character
 // int x: x-coordinate of user map.
