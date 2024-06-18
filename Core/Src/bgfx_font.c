@@ -1,5 +1,5 @@
-#include "../include/bgfx.h"
-#include "../include/bgfx_font.h"
+#include "bgfx.h"
+#include "bgfx_font.h"
 
 /* Global Variables */
 // Atari 8-pt Compact Font (8x8)

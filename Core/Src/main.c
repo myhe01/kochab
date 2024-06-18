@@ -21,7 +21,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include "bgfx.h"
+#include "image.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +52,22 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
+#ifdef __GNUC__
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif
+
+PUTCHAR_PROTOTYPE {
+   HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+   return ch;
+}
+
+// 0x00, soft-reset, temperature, active temp, PSR0, PSR1
+const uint8_t  REGISTER_DATA[] = {0x00, 0x0e, 0x19, 0x02, 0x0f, 0x89};
+const uint32_t IMAGE_DATA_SIZE = (uint32_t) 300 * (uint32_t) (400 / 8);
+const uint16_t SCREEN_DIAGONAL = 417;
+const uint16_t REFRESH_TIME = 19;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +82,321 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+/* Start
+ * 1. Get temp from temp sensor
+ * 2. Power on Tcon (COG)
+ * 3. Input temp to COG
+ * 4. Send image data to COG
+ * 5. Send the power settings of DC/DC and turn on DC/DC
+ * 6. Make sure BUSY = high
+ * 7. Send update command to COG
+ * 8. Wait until BUSY = high
+ * 9. Turn off DC/DC
+ * End
+ *
+ * Max SPI clock speed is 10 MHz
+ *
+ * COG Power On
+ * Start
+ * 1. Turn on VCC
+ * 2. Delay 5ms
+ * 3. Reset = 1
+ * 4. Delay 5ms
+ * 5. Reset = 0
+ * 6. Delay 10ms
+ * 7. Reset = 1
+ * 8. Delay 5ms
+ * 9. Soft reset (SPI 0x00, 0x0E)
+ * 10.Delay 5ms
+ * End
+ *
+ * COG Initial
+ * Start
+ * 1. Input temperature (SPI 0xE5, 0x19)
+ * 2. Active temperature (SPI 0xE0, 0x02)
+ * 3. Panel settings (SPI 0x00, 0x0F 0x89)
+ * End
+ *
+ * COG Update
+ * Start
+ * 1. Make sure BUSY = high
+ * 2. Power on command (SPI 0x04) * 2 no data
+ * 3. Wait until BUSY = high
+ * 4. Display refresh (SPI 0x12) * 2 no data
+ * 5. Wait until BUSY = high
+ * End
+ * SPI(0x04) and SPI(0x12) both do not need data. Just the index.
+ *
+ * COG Turn off DC/DC
+ * Start
+ * 1. Turn off DC/DC (SPI 0x02) no data
+ * 2. Wait until BUSY = high
+ * 3. Set RESET to floating
+ * 4. Clear CS, SDIN/MISO, SCLK (set low)
+ * 5. Cut off VCC to COG
+ * 6. Set BUSY to output, set low (reconfig as output and set low)
+ * 7. Delay 150 ms
+ * 8. Set RESET to output low
+ * End
+ *
+ * Global Update
+ * Start
+ * 1. DC low
+ * 2. CS low
+ * 3. Send first frame address (0x10)
+ * 4. CS high
+ * 5. DC high
+ * 6. CS low
+ * 7. Send first byte
+ * 8. CS high
+ * 9. CS low
+ * 10.Send second byte
+ * 11.CS high
+ * ...
+ * 12.CS low
+ * 13.Send last byte
+ * 14.CS high
+ * 15.Repeat 1-14 with second frame (address 0x13, all bytes 0x00 for 15000 bytes)
+ * End
+ *
+ */
+
+/**
+ * Steps:
+ * A) Power on COG driver
+ * B) Set env temp and PSR
+ * C) Send image to EPD
+ * D) Send update command
+ */
+
+/**
+ * Steps:
+ * A) Power on COG driver
+ * B) Set env temp and PSR
+ * C) Send image to EPD
+ * D) Send update command
+ *
+ * Official steps:
+ * Start
+ * 1. Get temp from temp sensor
+ * 2. Power on Tcon (COG)
+ * 3. Input temp to COG
+ * 4. Send image data to COG
+ * 5. Send the power settings of DC/DC and turn on DC/DC
+ * 6. Make sure BUSY = high
+ * 7. Send update command to COG
+ * 8. Wait until BUSY = high
+ * 9. Turn off DC/DC
+ * End
+ *
+ * Max SPI clock speed is 10 MHz
+ */
+int EI_update_image(uint8_t * image) {
+  static const uint8_t INPUT_TEMP = 0x19;
+  uint8_t ret = 0;
+
+  if (image == NULL) {
+    return -1;
+  }
+
+  // Make sure DC high, RST high, CS high
+  HAL_GPIO_WritePin(EPD_DC_PORT, EPD_DC_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_SET);
+
+  printf("Clock start: %lu\r\n", HAL_GetTick());
+
+  ret += COG_on();
+  printf("Ret from COG on\r\n");
+
+  ret += COG_init(INPUT_TEMP);
+  printf("Ret from COG init\r\n");
+
+  ret += COG_update(image);
+  printf("Ret from COG update\r\n");
+
+  ret += COG_off();
+  printf("Ret from COG off\r\n");
+
+  printf("Clock finish: %lu\r\n", HAL_GetTick());
+  printf("CLOCKS_PER_SEC: %d\r\n", HAL_GetTickFreq());
+
+  return ret;
+}
+
+/**
+ * COG Power On
+ * Start
+ * 1. Turn on VCC
+ * 2. Delay 5ms
+ * 3. Reset = 1
+ * 4. Delay 5ms
+ * 5. Reset = 0
+ * 6. Delay 10ms
+ * 7. Reset = 1
+ * 8. Delay 5ms
+ * 9. Soft reset (SPI 0x00, 0x0E)
+ * 10.Delay 5ms
+ * End
+ */
+int COG_on(void) {
+  HAL_GPIO_WritePin(EPD_PWR_PORT, EPD_PWR_PIN, GPIO_PIN_SET);
+  HAL_Delay(5);
+  HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_SET);
+  HAL_Delay(5);
+  HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_RESET);
+  HAL_Delay(10);
+  HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_SET);
+  HAL_Delay(5);
+
+  // Send soft reset command
+  COG_send_index_data(0x00, &REGISTER_DATA[1], sizeof(REGISTER_DATA[1]));
+
+  HAL_Delay(5);
+  HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_SET);
+
+  return 0;
+}
+
+/**
+ * COG Initial
+ * Start
+ * 1. Input temperature (SPI 0xE5, 0x19)
+ * 2. Active temperature (SPI 0xE0, 0x02)
+ * 3. Panel settings (SPI 0x00, 0x0F 0x89)
+ * End
+ */
+int COG_init(uint8_t input_temp) {
+  // Send input temperature
+  COG_send_index_data(0xE5, &input_temp, sizeof(input_temp));
+
+  // Send active temperature
+  COG_send_index_data(0xE0, &REGISTER_DATA[3], sizeof(REGISTER_DATA[3]));
+
+  // Send PSR
+  COG_send_index_data(0x00, &REGISTER_DATA[4], sizeof(REGISTER_DATA[4] * 2));
+
+  return 0;
+}
+
+/**
+ * Global Update
+ * Start
+ * 1. DC low
+ * 2. CS low
+ * 3. Send first frame address (0x10)
+ * 4. CS high
+ * 5. DC high
+ * 6. CS low
+ * 7. Send first byte
+ * 8. CS high
+ * 9. CS low
+ * 10.Send second byte
+ * 11.CS high
+ * ...
+ * 12.CS low
+ * 13.Send last byte
+ * 14.CS high
+ * 15.Repeat 1-14 with second frame (address 0x13, all bytes 0x00 for 15000 bytes)
+ * End
+ */
+int COG_update(uint8_t * data) {
+  int ret = 0;
+
+  ret = COG_send_index_data(0x10, data, 15000);
+  ret = COG_send_index_data(0x13, image_map, 15000);
+
+  while(HAL_GPIO_ReadPin(EPD_BUSY_PORT, EPD_BUSY_PIN) == GPIO_PIN_RESET) {
+    HAL_Delay(2);
+  }
+
+  // Send power on command
+  COG_send_index_data(0x04, NULL, 0);
+
+  while(HAL_GPIO_ReadPin(EPD_BUSY_PORT, EPD_BUSY_PIN) == GPIO_PIN_RESET){
+    HAL_Delay(2);
+  }
+
+  COG_send_index_data(0x12, NULL, 0);
+
+  while(HAL_GPIO_ReadPin(EPD_BUSY_PORT, EPD_BUSY_PIN) == GPIO_PIN_RESET){
+    HAL_Delay(2);
+  }
+
+  return ret;
+}
+
+/**
+ * COG Turn off DC/DC
+ * Start
+ * 1. Turn off DC/DC (SPI 0x02) no data
+ * 2. Wait until BUSY = high
+ * 3. Set RESET to floating
+ * 4. Clear CS, SDIN/MISO, SCLK (set low)
+ * 5. Cut off VCC to COG
+ * 6. Set BUSY to output, set low (reconfig as output and set low)
+ * 7. Delay 150 ms
+ * 8. Set RESET to output low
+ * End
+ */
+int COG_off(void) {
+  COG_send_index_data(0x02, NULL, 0);
+
+  while (HAL_GPIO_ReadPin(EPD_BUSY_PORT, EPD_BUSY_PIN) == GPIO_PIN_RESET) {
+    HAL_Delay(2);
+  }
+
+  HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_RESET);
+
+  HAL_GPIO_WritePin(EPD_PWR_PORT, EPD_PWR_PIN, GPIO_PIN_RESET);
+
+  return 0;
+}
+
+int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len) {
+  unsigned int i = 0;
+
+  // DC low, CS low
+  HAL_GPIO_WritePin(EPD_DC_PORT, EPD_DC_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_RESET);
+
+  // Send reg address
+  HAL_SPI_Transmit(&hspi1, &index, sizeof(index), HAL_MAX_DELAY);
+
+  // CS high, DC high
+  HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(EPD_DC_PORT, EPD_DC_PIN, GPIO_PIN_SET);
+
+  // CS low
+  HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_RESET);
+
+  if (data != NULL) {
+    for (i = 0; i < len; i++) {
+      // CS low
+      HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_RESET);
+
+      // Send image byte
+      HAL_SPI_Transmit(&hspi1, &data[i], sizeof(data[i]), HAL_MAX_DELAY);
+
+      // CS high
+      HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_SET);
+    }
+  } else {
+    for (i = 0; i < len; i++) {
+      // CS low
+      HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_RESET);
+
+      // Send zero byte
+      HAL_SPI_Transmit(&hspi1, 0x00, sizeof(uint8_t), HAL_MAX_DELAY);
+
+      // CS high
+      HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_SET);
+    }
+  }
+
+  return 0;
+}
 /* USER CODE END 0 */
 
 /**
@@ -70,7 +407,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  int i = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,17 +431,57 @@ int main(void)
   MX_SPI1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+   bgfx_properties my_props = {
+      .px_width = 400,
+      .px_height = 300,
+      .map = image_map
+   };
+   bgfx_setup(&my_props);
+   bgfx_set_font(&BGFX_ATARI_16);
 
+   static const uint8_t INPUT_TEMP = 0x19;
+   uint8_t ret = 0;
+
+   // Make sure DC high, RST high, CS high
+   HAL_GPIO_WritePin(EPD_DC_PORT, EPD_DC_PIN, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(EPD_RST_PORT, EPD_RST_PIN, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(SPI1_CS_PORT, SPI1_CS_PIN, GPIO_PIN_SET);
+
+   printf("Clock start: %lu\r\n", HAL_GetTick());
+
+   ret += COG_on();
+   printf("Ret from COG on\r\n");
+
+   ret += COG_init(INPUT_TEMP);
+   printf("Ret from COG init\r\n");
+   /*
+   bgfx_draw_string("14:05:37Z", 20, 5);
+   bgfx_draw_string("08:05:37L", 20, 30);
+   bgfx_draw_string("37 hours", 250, 5);
+   bgfx_draw_string_modified_padding("4Q FJ", 2, 1, 20, 70);
+   bgfx_draw_string_modified_padding("12345", 2, 1, 200, 70);
+   bgfx_draw_string_modified_padding("67890", 2, 1, 200, 140);
+
+   bgfx_draw_box(2,398,2,298);
+
+   int rv = EI_update_image(my_props.map);
+   */
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+   while (1)
+   {
+      int i = 0;
+      bgfx_draw_string("String", 2 + (i * 40), 2);
+      COG_update(my_props.map);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+   }
+
+   ret += COG_off();
+   printf("Ret from COG off\r\n");
   /* USER CODE END 3 */
 }
 
@@ -306,11 +683,11 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+   /* User can add his own implementation to report the HAL error return state */
+   __disable_irq();
+   while (1)
+   {
+   }
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -325,8 +702,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+   /* User can add his own implementation to report the file name and line number,
+      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
