@@ -37,7 +37,7 @@
 # STM32CubeIDE
 .settings/
 [Dd]ebug/
-[Dd]drivers/
+[Dd]rivers/
 [Rr]elease/
 *.launch
 *.xml
