@@ -459,7 +459,7 @@ int main(void)
   ret += COG_init(INPUT_TEMP);
   printf("Ret from COG init\r\n");
 
-  /*
+
   bgfx_draw_string("14:05:37Z", 20, 5);
   bgfx_draw_string("08:05:37L", 20, 30);
   bgfx_draw_string("37 hours", 250, 5);
@@ -467,8 +467,7 @@ int main(void)
   bgfx_draw_string_modified_padding("12345", 2, 1, 200, 70);
   bgfx_draw_string_modified_padding("67890", 2, 1, 200, 140);
   bgfx_draw_box(2,398,2,298);
-  int rv = EI_update_image(my_props.map);
-  */
+  int rv = COG_update(my_props.map);
 
   /* USER CODE END 2 */
 
@@ -476,9 +475,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    int i = 0;
-    bgfx_draw_string("String", 2 + (i * 40), 2);
-    COG_update(my_props.map);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
