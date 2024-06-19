@@ -34,6 +34,6 @@
 # VSCode
 .vscode/
 
-# main.c
-main.c
-!main/
+# Build
+[Dd]ebug/
+[Rr]elease/
