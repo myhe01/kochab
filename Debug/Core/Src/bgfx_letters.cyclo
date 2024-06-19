@@ -1,0 +1,7 @@
+bgfx_letters.c:11:5:bgfx_draw_letter	3
+bgfx_letters.c:35:5:bgfx_draw_letter_modified	3
+bgfx_letters.c:58:5:bgfx_draw_string	1
+bgfx_letters.c:69:5:bgfx_draw_string_padding	1
+bgfx_letters.c:82:5:bgfx_draw_string_modified_padding	4
+bgfx_letters.c:112:6:_bgfx_letter_point	3
+bgfx_letters.c:130:6:_bgfx_draw_letter	5

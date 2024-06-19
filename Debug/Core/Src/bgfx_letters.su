@@ -1,0 +1,7 @@
+../Core/Src/bgfx_letters.c:11:5:bgfx_draw_letter	24	static
+../Core/Src/bgfx_letters.c:35:5:bgfx_draw_letter_modified	32	static
+../Core/Src/bgfx_letters.c:58:5:bgfx_draw_string	32	static
+../Core/Src/bgfx_letters.c:69:5:bgfx_draw_string_padding	32	static
+../Core/Src/bgfx_letters.c:82:5:bgfx_draw_string_modified_padding	32	static
+../Core/Src/bgfx_letters.c:112:6:_bgfx_letter_point	40	static
+../Core/Src/bgfx_letters.c:130:6:_bgfx_draw_letter	56	static
