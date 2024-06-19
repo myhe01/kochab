@@ -1,5 +1,5 @@
-#include "../include/bgfx.h"
-#include "../include/bgfx_letters.h"
+#include "../Inc/bgfx.h"
+#include "../Inc/bgfx_letters.h"
 #include <stddef.h>
 
 /* Public Functions */

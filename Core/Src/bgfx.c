@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/bgfx.h"
+#include "../Inc/bgfx.h"
 
 /* Global Variables */
 // Global properties
