@@ -1,4 +1,42 @@
 # TODO
 
-- [ ] test1
-- [x] test2
+- [ ] Display driver
+   - [x] Draw pixel
+   - [x] Draw lines
+   - [x] Draw character
+   - [x] Draw strings
+   - [x] Modify string padding and size
+   - [x] Different fonts
+   - [ ] Adapt driver to Sharp LCD
+   - [ ] Create icons
+      - [ ] Refresh icon
+      - [ ] Units icons
+      - [ ] Battery icons
+      - [ ] Update period icons
+      - [ ] Settings icons
+   - [ ] Menus
+      - [ ] Main screen
+      - [ ] Settings screen
+      - [ ] Waypoint/markpoint screen
+- [ ] GUI logic
+   - [ ] Menu state machine
+   - [ ] Main screen
+      - [ ] Waypoints screen
+      - [ ] Change update mode
+      - [ ] Manual update
+      - [ ] Settings screen
+   - [ ] Settings screen
+      - [ ] Coordinates system
+      - [ ] Speed units
+      - [ ] Altitude units
+      - [ ] Trip meter units
+   - [ ] Waypoint/markpoint screen
+      - [ ] Display in units currently set
+- [ ] GPS logic
+   - [ ] Automatic update mode
+   - [ ] Configurable update mode
+   - [ ] Manual update mode
+   - [ ] Store coordinates
+   - [ ] Store speed
+   - [ ] Store altitude
+- [ ] Power-saving logic
