@@ -1,2 +1,0 @@
-../Core/Src/bgfx_font.c:36:5:bgfx_set_font	16	static
-../Core/Src/bgfx_font.c:54:5:_bgfx_get_index_of_char	16	static

@@ -1,8 +1,0 @@
-bgfx.c:28:5:bgfx_setup	3
-bgfx.c:50:5:bgfx_add_point	2
-bgfx.c:67:5:bgfx_draw_line_x	6
-bgfx.c:90:5:bgfx_draw_line_y	6
-bgfx.c:114:5:bgfx_draw_box	2
-bgfx.c:128:5:bgfx_erase_all	1
-bgfx.c:140:6:_bgfx_valid	6
-bgfx.c:166:6:_bgfx_add_point	3

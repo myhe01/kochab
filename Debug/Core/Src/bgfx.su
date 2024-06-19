@@ -1,8 +1,0 @@
-../Core/Src/bgfx.c:28:5:bgfx_setup	16	static
-../Core/Src/bgfx.c:50:5:bgfx_add_point	16	static
-../Core/Src/bgfx.c:67:5:bgfx_draw_line_x	40	static
-../Core/Src/bgfx.c:90:5:bgfx_draw_line_y	40	static
-../Core/Src/bgfx.c:114:5:bgfx_draw_box	32	static
-../Core/Src/bgfx.c:128:5:bgfx_erase_all	8	static
-../Core/Src/bgfx.c:140:6:_bgfx_valid	16	static
-../Core/Src/bgfx.c:166:6:_bgfx_add_point	32	static
