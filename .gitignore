@@ -37,5 +37,9 @@
 # STM32CubeIDE
 .settings/
 [Dd]ebug/
+[Dd]drivers/
 [Rr]elease/
 *.launch
+.cproject
+.mxproject
+STM32L010RBTX_FLASH.ld
