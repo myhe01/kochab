@@ -26,11 +26,37 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+/* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
+
+/* USER CODE END ET */
+
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
+/* USER CODE BEGIN EFP */
+
+/* USER CODE END EFP */
+
+/* Private defines -----------------------------------------------------------*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
 #define MCO_Pin GPIO_PIN_0
@@ -56,30 +82,9 @@ void Error_Handler(void);
 #define SPI1_CS_Pin GPIO_PIN_6
 #define SPI1_CS_GPIO_Port GPIOB
 
-#define IMAGE_WIDTH (int)400
-#define IMAGE_HEIGHT (int)300
-#define BYTES_PER_ROW (int)(IMAGE_WIDTH / (sizeof(uint8_t) * 8))
+/* USER CODE BEGIN Private defines */
 
-#define LETTER_WIDTH (int)8
-#define LETTER_HEIGHT (int)12
-
-#define EPD_PWR_PIN		GPIO_PIN_2
-#define EPD_PWR_PORT	GPIOC
-#define EPD_BUSY_PIN	GPIO_PIN_0
-#define EPD_BUSY_PORT	GPIOA
-#define EPD_DC_PIN    	GPIO_PIN_1
-#define EPD_DC_PORT		GPIOA
-#define EPD_RST_PIN   	GPIO_PIN_4
-#define EPD_RST_PORT	GPIOA
-#define SPI1_CS_PIN		GPIO_PIN_6
-#define SPI1_CS_PORT	GPIOB
-
-int EI_update_image(uint8_t * image);
-int COG_init(uint8_t input_temp);
-int COG_on(void);
-int COG_update(uint8_t * data);
-int COG_off(void);
-int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len);
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
