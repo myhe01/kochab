@@ -408,6 +408,7 @@ int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len) {
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
