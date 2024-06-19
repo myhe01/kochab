@@ -38,3 +38,4 @@
 .settings/
 [Dd]ebug/
 [Rr]elease/
+*.launch
