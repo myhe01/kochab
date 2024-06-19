@@ -23,6 +23,7 @@ A low-power handheld GNSS receiver.
    * Automatic update mode: 1 second
    * Periodic update mode: configurable up to 4 hours (updates manually triggerable)
    * Manual update mode: manually triggered
+* Record up to 10 markpoints
 
 ## Parts
 * MCU: [STM32L010RB](https://www.st.com/en/microcontrollers-microprocessors/stm32l010rb.html)
