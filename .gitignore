@@ -40,6 +40,7 @@
 [Dd]drivers/
 [Rr]elease/
 *.launch
+*.xml
 .cproject
 .mxproject
 STM32L010RBTX_FLASH.ld
