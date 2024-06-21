@@ -53,12 +53,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-int EI_update_image(uint8_t * image);
-int COG_init(uint8_t input_temp);
-int COG_on(void);
-int COG_update(uint8_t * data);
-int COG_off(void);
-int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len);
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -88,13 +83,6 @@ int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len);
 #define SPI1_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define IMAGE_WIDTH (int)400
-#define IMAGE_HEIGHT (int)300
-#define BYTES_PER_ROW (int)(IMAGE_WIDTH / (sizeof(uint8_t) * 8))
-
-#define LETTER_WIDTH (int)8
-#define LETTER_HEIGHT (int)12
-
 #define EPD_PWR_PIN		GPIO_PIN_2
 #define EPD_PWR_PORT	GPIOC
 #define EPD_BUSY_PIN	GPIO_PIN_0
