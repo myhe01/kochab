@@ -53,12 +53,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-int EI_update_image(uint8_t * image);
-int COG_init(uint8_t input_temp);
-int COG_on(void);
-int COG_update(uint8_t * data);
-int COG_off(void);
-int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len);
+int sharp_send_data(uint8_t * data);
+uint8_t swap_8(uint8_t in);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -66,20 +62,14 @@ int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len);
 #define B1_GPIO_Port GPIOC
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
-#define EPD_PWR_Pin GPIO_PIN_2
-#define EPD_PWR_GPIO_Port GPIOC
-#define EPD_BUSY_Pin GPIO_PIN_0
-#define EPD_BUSY_GPIO_Port GPIOA
-#define EPD_DC_Pin GPIO_PIN_1
-#define EPD_DC_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-#define EPD_RST_Pin GPIO_PIN_4
-#define EPD_RST_GPIO_Port GPIOA
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
+#define DISP_Pin GPIO_PIN_10
+#define DISP_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
@@ -88,23 +78,10 @@ int COG_send_index_data(uint8_t index, uint8_t * data, uint32_t len);
 #define SPI1_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define IMAGE_WIDTH (int)400
-#define IMAGE_HEIGHT (int)300
-#define BYTES_PER_ROW (int)(IMAGE_WIDTH / (sizeof(uint8_t) * 8))
-
-#define LETTER_WIDTH (int)8
-#define LETTER_HEIGHT (int)12
-
-#define EPD_PWR_PIN		GPIO_PIN_2
-#define EPD_PWR_PORT	GPIOC
-#define EPD_BUSY_PIN	GPIO_PIN_0
-#define EPD_BUSY_PORT	GPIOA
-#define EPD_DC_PIN    	GPIO_PIN_1
-#define EPD_DC_PORT		GPIOA
-#define EPD_RST_PIN   	GPIO_PIN_4
-#define EPD_RST_PORT	GPIOA
-#define SPI1_CS_PIN		GPIO_PIN_6
-#define SPI1_CS_PORT	GPIOB
+#define SHARPMEM_BIT_WRITECMD (0x01) // 0x80 in LSB format
+#define SHARPMEM_BIT_VCOM (0x02)     // 0x40 in LSB format
+#define SHARPMEM_BIT_CLEAR (0x04)    // 0x20 in LSB format
+#define DISPLAY_SIZE (400 * 240) / 8
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
